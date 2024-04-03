@@ -3,6 +3,16 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 
 
+def load_data():
+    mnist = fetch_openml('mnist_784', version=1)
+    X, y = mnist['data'], mnist['target']
+    y = y.astype(np.uint8)
+    X = X / 255.0
+    X = np.array(X)
+    y = np.array(y)
+    return X, y
+
+
 def relu(Z):
     return np.maximum(0, Z)
 
@@ -28,11 +38,6 @@ def forward_propagation(X, parameters):
     return {'Z1': Z1, 'A1': A1, 'Z2': Z2, 'A2': A2}
 
 
-def compute_loss(Y, probs):
-    m = Y.shape[0]
-    log_probs = -np.log(probs[range(m), Y])
-    loss = np.sum(log_probs) / m
-    return loss
 
 
 def backward_propagation(X, y, parameters, cache):
@@ -54,6 +59,20 @@ def update_parameters(parameters, grads, learning_rate=0.01):
     parameters['W2'] -= learning_rate * grads['dW2']
     parameters['b2'] -= learning_rate * grads['db2']
     return parameters
+
+
+def compute_loss(Y, probs):
+    m = Y.shape[0]
+    log_probs = -np.log(probs[range(m), Y])
+    loss = np.sum(log_probs) / m
+    return loss
+
+
+def evaluate(X, y, parameters):
+    cache = forward_propagation(X, parameters)[1]
+    predictions = np.argmax(cache['A2'], axis=1)
+    accuracy = np.mean(predictions == y)
+    return accuracy
 
 
 def train_neural_network(X_train, y_train, X_test, y_test, hidden_size, learning_rate, num_epochs, batch_size):
@@ -83,23 +102,6 @@ def train_neural_network(X_train, y_train, X_test, y_test, hidden_size, learning
             print(f"Test Accuracy at Epoch {epoch}: {test_accuracy}")
 
     return parameters
-
-
-def evaluate(X, y, parameters):
-    cache = forward_propagation(X, parameters)
-    predictions = np.argmax(cache['A2'], axis=1)
-    accuracy = np.mean(predictions == y)
-    return accuracy
-
-
-def load_data():
-    mnist = fetch_openml('mnist_784', version=1)
-    X, y = mnist['data'], mnist['target']
-    y = y.astype(np.uint8)
-    X = X / 255.0
-    X = np.array(X)
-    y = np.array(y)
-    return X, y
 
 
 def main():
