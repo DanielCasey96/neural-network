@@ -109,8 +109,8 @@ def train_neural_network(X_train, y_train, X_test, y_test, hidden_size, learning
 def main():
     X, y = load_data()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    hidden_size = 128
-    learning_rate = 0.01
+    hidden_size = 50
+    learning_rate = 0.05
     num_epochs = 50
     batch_size = 32
     parameters = train_neural_network(X_train, y_train, X_test, y_test, hidden_size, learning_rate, num_epochs,
