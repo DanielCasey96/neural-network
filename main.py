@@ -30,14 +30,16 @@ def initialize_parameters(input_size, hidden_size, output_size):
     return {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
 
 
-def forward_propagation(X, parameters):
-    Z1 = np.dot(X, parameters['W1']) + parameters['b1']
-    A1 = relu(Z1)
-    Z2 = np.dot(A1, parameters['W2']) + parameters['b2']
-    A2 = softmax(Z2)
-    return {'Z1': Z1, 'A1': A1, 'Z2': Z2, 'A2': A2}
-
-
+def forward_propagation(X, parameters, cache=None):
+    if cache is None:
+        Z1 = np.dot(X, parameters['W1']) + parameters['b1']
+        A1 = relu(Z1)
+        Z2 = np.dot(A1, parameters['W2']) + parameters['b2']
+        A2 = softmax(Z2)
+        cache = {'Z1': Z1, 'A1': A1, 'Z2': Z2, 'A2': A2}
+    else:
+        A2 = cache['A2']
+    return A2, cache
 
 
 def backward_propagation(X, y, parameters, cache):
@@ -89,8 +91,8 @@ def train_neural_network(X_train, y_train, X_test, y_test, hidden_size, learning
             X_batch = X_train_shuffled[i:i + batch_size]
             y_batch = y_train_shuffled[i:i + batch_size]
 
-            cache = forward_propagation(X_batch, parameters)
-            loss = compute_loss(y_batch, cache['A2'])
+            A2, cache = forward_propagation(X_batch, parameters)
+            loss = compute_loss(y_batch, A2)
             grads = backward_propagation(X_batch, y_batch, parameters, cache)
             parameters = update_parameters(parameters, grads, learning_rate)
 
